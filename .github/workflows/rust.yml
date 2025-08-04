@@ -1,0 +1,45 @@
+name: Build Tauri App
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'  # Or whatever version your project needs
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+        components: rustfmt, clippy
+
+    - name: Install frontend dependencies
+      run: npm install
+
+    - name: Install system dependencies for Tauri
+      run: |
+        sudo apt update
+        sudo apt install -y libwebkit2gtk-4.0-dev \
+                            build-essential \
+                            curl \
+                            wget \
+                            libssl-dev \
+                            libgtk-3-dev \
+                            libayatana-appindicator3-dev \
+                            librsvg2-dev
+
+    - name: Build Tauri App
+      run: npx tauri build
